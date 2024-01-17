@@ -9,12 +9,16 @@ const prisma = new PrismaClient()
 const scheduleTokenCleanup = () => {
   cron.schedule('0 * * * *', async () => {
     try {
-      // Find and delete users with expired tokens
-      await prisma.user.deleteMany({
+      // Find and update users with expired tokens
+      await prisma.user.updateMany({
         where: {
           tokenExpiry: {
             lt: new Date(),
           },
+        },
+        data: {
+          token: null, // Clear the token
+          tokenExpiry: null, // Clear the token expiration
         },
       })
       console.log('Expired tokens cleaned up')

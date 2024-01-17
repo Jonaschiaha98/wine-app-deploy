@@ -10,9 +10,12 @@ const authenticateUser = async (req, res, next) => {
   }
   try {
     token = token.replace(/^Bearer /, '')
-    const decoded = jwt.verify(token, 'your-secret-key')
-    // console.log(decoded)
-    req.userEmail = decoded.userEmail
+    const tokenSearched = await prisma.user.findFirst({
+      where: { token: token },
+    })
+    if (!tokenSearched) {
+      return res.status(401).json({ error: 'Unauthorized' })
+    }
     next()
   } catch (error) {
     console.error(error)
